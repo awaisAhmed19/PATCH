@@ -1,0 +1,78 @@
+{
+  "scanner": "nmap",
+  "args": "nmap -sV --script vuln -oX scan.xml",
+  "version": "7.94",
+  "hosts": [
+    {
+      "address": "192.168.1.10",
+      "hostnames": [
+        "test-vulnerable-host.local"
+      ],
+      "ports": [
+        {
+          "protocol": "tcp",
+          "portid": 22,
+          "state": "open",
+          "service": {
+            "name": "ssh",
+            "product": "OpenSSH",
+            "version": "7.2p2"
+          },
+          "vulnerabilities": [
+            {
+              "id": "vulners",
+              "output": "OpenSSH 7.2p2 has known vulnerabilities.",
+              "elements": {}
+            }
+          ]
+        },
+        {
+          "protocol": "tcp",
+          "portid": 80,
+          "state": "open",
+          "service": {
+            "name": "http",
+            "product": "Apache httpd",
+            "version": "2.4.29"
+          },
+          "vulnerabilities": [
+            {
+              "id": "http-vuln-cve2017-5638",
+              "output": "Apache Struts vulnerability detected (CVE-2017-5638)",
+              "elements": {
+                "cve": "CVE-2017-5638",
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-5638"
+              }
+            },
+            {
+              "id": "vulners",
+              "output": "Apache httpd 2.4.29 vulnerabilities",
+              "elements": {}
+            }
+          ]
+        },
+        {
+          "protocol": "tcp",
+          "portid": 445,
+          "state": "open",
+          "service": {
+            "name": "microsoft-ds",
+            "product": "Samba smbd",
+            "version": "3.6.25"
+          },
+          "vulnerabilities": [
+            {
+              "id": "smb-vuln-ms17-010",
+              "output": "Host is vulnerable to MS17-010 (EternalBlue)",
+              "elements": {
+                "state": "VULNERABLE",
+                "cve": "CVE-2017-0144",
+                "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-0144"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
