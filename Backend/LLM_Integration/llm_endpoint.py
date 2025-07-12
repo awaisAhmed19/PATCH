@@ -7,6 +7,7 @@ import google.generativeai as genai
 app = Flask(__name__)
 CORS(app)
 
+
 # Extract facts from Nmap JSON
 def extract_context(data):
     facts = []
@@ -27,6 +28,7 @@ Port {port_id} ({service_name}): {vuln['output']}"""
                 )
     return "\n".join(facts)
 
+
 # Gemini call
 def get_gemini_response(prompt_text):
     try:
@@ -35,11 +37,12 @@ def get_gemini_response(prompt_text):
         return "Error: GEMINI_API_KEY not set"
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt_text)
         return response.text
     except Exception as e:
         return f"Error: {str(e)}"
+
 
 # Default question
 DEFAULT_QUESTION = (
@@ -47,6 +50,7 @@ DEFAULT_QUESTION = (
     "along with commands based on the OS. "
     "Also list the severity and priority of the vulnerabilities."
 )
+
 
 # POST endpoint
 @app.route("/llm-response", methods=["POST"])
@@ -72,7 +76,3 @@ Answer based on the above data.
 """
     response = get_gemini_response(prompt)
     return jsonify({"response": response})
-
-# Run server
-if __name__ == "__main__":
-    app.run(port=8000, debug=True)

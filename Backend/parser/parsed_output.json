@@ -1,0 +1,50 @@
+{
+  "scan_summary": {
+    "host_count": 1,
+    "port_count": 4
+  },
+  "hosts": [
+    {
+      "ip": "45.33.32.156",
+      "ports": [
+        {
+          "port": 22,
+          "protocol": "tcp",
+          "service": {
+            "name": "ssh",
+            "product": "OpenSSH",
+            "version": "6.6.1p1 Ubuntu 2ubuntu2.13"
+          }
+        },
+        {
+          "port": 80,
+          "protocol": "tcp",
+          "service": {
+            "name": "http",
+            "product": "Apache httpd",
+            "version": "2.4.7"
+          }
+        },
+        {
+          "port": 9929,
+          "protocol": "tcp",
+          "service": {
+            "name": "nping-echo",
+            "product": "Nping echo",
+            "version": ""
+          }
+        },
+        {
+          "port": 31337,
+          "protocol": "tcp",
+          "service": {
+            "name": "tcpwrapped",
+            "product": "",
+            "version": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+
