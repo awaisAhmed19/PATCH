@@ -7,6 +7,7 @@ import csv
 app = Flask(__name__)
 CORS(app)
 
+<<<<<<< HEAD:LLM_Integration/llm_endpoint.py
 from datetime import datetime
 
 import re
@@ -105,6 +106,9 @@ def append_vulnerabilities_to_csv(scan_data, llm_response):
                     ])
 
     print(f"✅ CSV rows appended to {filename}")
+=======
+
+>>>>>>> 64ad22d (Backend implimentation - parser - endpoints -app launcher):Backend/LLM_Integration/llm_endpoint.py
 # Extract facts from Nmap JSON
 def extract_context(data):
     facts = []
@@ -140,11 +144,12 @@ def get_gemini_response(prompt_text):
         return "Error: GEMINI_API_KEY not set"
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel("gemini-2.5-flash")
         response = model.generate_content(prompt_text)
         return response.text
     except Exception as e:
         return f"Error: {str(e)}"
+
 
 # Default question
 DEFAULT_QUESTION = (
@@ -154,6 +159,7 @@ DEFAULT_QUESTION = (
     "the priority should have values {Critical, High, Medium, Low} placed inside {} brackets, along with their id {id, Priority} where id is id of vulnerability like 'vulners'. " 
     "Also place the suggested mitigations inside [] brackets for each vulnerability. in the format. Patches: [id, content] where id is id of vulnerability like 'vulners'." 
 )
+
 
 # POST endpoint
 @app.route("/llm-response", methods=["POST"])
@@ -181,7 +187,3 @@ Answer based on the above data.
     #save_response_to_file(response)
     append_vulnerabilities_to_csv(scan_data, response)
     return jsonify({"response": response})
-
-# Run server
-if __name__ == "__main__":
-    app.run(port=8000, debug=True)
