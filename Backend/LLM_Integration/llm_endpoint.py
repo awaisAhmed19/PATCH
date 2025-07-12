@@ -4,18 +4,15 @@ import os
 import json
 import google.generativeai as genai
 import csv
+from datetime import datetime
+from dotenv import load_dotenv
+
+
+import re
+
 app = Flask(__name__)
 CORS(app)
 
-<<<<<<< HEAD:LLM_Integration/llm_endpoint.py
-from datetime import datetime
-
-import re
-
-
-import re
-
-import re
 
 def extract_priority_and_patch(response_text, vuln_id):
     """
@@ -25,12 +22,13 @@ def extract_priority_and_patch(response_text, vuln_id):
     # Priority Extraction: looks for {ID, Priority}
     priority_match = re.search(
         rf"\{{\s*{re.escape(vuln_id)}\s*,\s*(Critical|High|Medium|Low)\s*\}}",
-        response_text, re.IGNORECASE
+        response_text,
+        re.IGNORECASE,
     )
     priority = priority_match.group(1).capitalize() if priority_match else "Unknown"
 
     # Patch Extraction: looks for Patches: [ID, patch...]
-    
+
     patch_pattern = rf"Patches:\s*\[\s*{re.escape(vuln_id)}\s*,([\s\S]*?)\]"
     patch_match = re.search(patch_pattern, response_text, re.IGNORECASE)
     patch = patch_match.group(1).strip() if patch_match else "Not specified"
@@ -42,10 +40,9 @@ def save_response_to_file(response_text):
     now = datetime.now()
     date = now.strftime("%Y-%m-%d")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #filename = f"vulnerability_log_{date}.txt"  # fixed log file
+    # filename = f"vulnerability_log_{date}.txt"  # fixed log file
     os.makedirs("Vulnerability_Logs", exist_ok=True)
     filename = os.path.join("Vulnerability_Logs", f"vulnerability_log_{date}.txt")
-
 
     with open(filename, "a", encoding="utf-8") as f:
         f.write("=" * 80 + "\n")
@@ -56,7 +53,9 @@ def save_response_to_file(response_text):
 
     print(f"✅ Response appended to {filename}")
 
-#from extract_utils import extract_priority_and_patch  # assuming it's imported
+
+# from extract_utils import extract_priority_and_patch  # assuming it's imported
+
 
 def append_vulnerabilities_to_csv(scan_data, llm_response):
     filename = "Vulnerability_Logs/Vulnerability_logs.csv"
@@ -70,11 +69,21 @@ def append_vulnerabilities_to_csv(scan_data, llm_response):
         writer = csv.writer(csvfile)
 
         if not file_exists:
-            writer.writerow([
-                "Timestamp", "Host", "Hostname", "OS", "Port",
-                "Service", "Vulnerability", "Patch/ Mitigation", "Priority", "Status"
-            ])
-       
+            writer.writerow(
+                [
+                    "Timestamp",
+                    "Host",
+                    "Hostname",
+                    "OS",
+                    "Port",
+                    "Service",
+                    "Vulnerability",
+                    "Patch/ Mitigation",
+                    "Priority",
+                    "Status",
+                ]
+            )
+
         for host in scan_data.get("hosts", []):
             ip = host.get("address", "Unknown IP")
             hostnames = ", ".join(host.get("hostnames", [])) or "No hostname"
@@ -91,34 +100,36 @@ def append_vulnerabilities_to_csv(scan_data, llm_response):
                     # Extract patch and priority using vuln_id from LLM response
                     priority, patch = extract_priority_and_patch(llm_response, vuln_id)
 
-                    writer.writerow([
-                        timestamp,
-                        ip,
-                        hostnames,
-                        os_info,
-                        vuln_id,
-                        port_id,
-                        service_name,
-                        vuln_desc,
-                        patch,
-                        priority,
-                        "Pending"
-                    ])
+                    writer.writerow(
+                        [
+                            timestamp,
+                            ip,
+                            hostnames,
+                            os_info,
+                            vuln_id,
+                            port_id,
+                            service_name,
+                            vuln_desc,
+                            patch,
+                            priority,
+                            "Pending",
+                        ]
+                    )
 
     print(f"✅ CSV rows appended to {filename}")
-=======
 
->>>>>>> 64ad22d (Backend implimentation - parser - endpoints -app launcher):Backend/LLM_Integration/llm_endpoint.py
+
 # Extract facts from Nmap JSON
 def extract_context(data):
     facts = []
+
     for host in data.get("hosts", []):
         ip = host.get("address", "Unknown IP")
         hostnames = ", ".join(host.get("hostnames", [])) or "No hostname"
         os_info = host.get("os", {}).get("name", "Unknown OS")
 
         for port in host.get("ports", []):
-            port_id = port.get("portid")
+            port_id = port.get("portid", "N/A")
             service_name = port.get("service", {}).get("name", "unknown service")
 
             for vuln in port.get("vulnerabilities", []):
@@ -127,13 +138,13 @@ def extract_context(data):
 
                 facts.append(
                     f"""Host: {ip} ({hostnames})
-                       OS: {os_info}
-                    Port {port_id} ({service_name})
-                    Vulnerability ID: {vuln_id}
-                    Details: {vuln_output}
-                    """
+OS: {os_info}
+Port {port_id} ({service_name})
+Vulnerability ID: {vuln_id}
+Details: {vuln_output}"""
                 )
-    return "\n".join(facts)
+
+    return "\n\n".join(facts)
 
 
 # Gemini call
@@ -156,9 +167,12 @@ DEFAULT_QUESTION = (
     "Explain the vulnerabilities and suggest mitigations, "
     "along with commands based on the OS. "
     "Also list the severity and priority of the vulnerabilities."
-    "the priority should have values {Critical, High, Medium, Low} placed inside {} brackets, along with their id {id, Priority} where id is id of vulnerability like 'vulners'. " 
-    "Also place the suggested mitigations inside [] brackets for each vulnerability. in the format. Patches: [id, content] where id is id of vulnerability like 'vulners'." 
+    "the priority should have values {Critical, High, Medium, Low} placed inside {} brackets, along with their id {id, Priority} where id is id of vulnerability like 'vulners'. "
+    "Also place the suggested mitigations inside [] brackets for each vulnerability. in the format. Patches: [id, content] where id is id of vulnerability like 'vulners'."
 )
+
+
+# POST endpoint
 
 
 # POST endpoint
@@ -183,7 +197,6 @@ def llm_response():
 Question: {DEFAULT_QUESTION}
 Answer based on the above data.
 """
+
     response = get_gemini_response(prompt)
-    #save_response_to_file(response)
-    append_vulnerabilities_to_csv(scan_data, response)
     return jsonify({"response": response})
