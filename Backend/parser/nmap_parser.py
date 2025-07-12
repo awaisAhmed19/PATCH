@@ -3,7 +3,6 @@ from lxml import etree
 
 
 def parse_nmap_xml(file_path):
-    from lxml import etree
 
     with open(file_path, "rb") as file:
         xml_data = file.read()

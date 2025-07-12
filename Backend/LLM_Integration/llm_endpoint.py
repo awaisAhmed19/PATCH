@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, docstring
 from flask_cors import CORS
 import os
 import json
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-load_dotenv()  # loads env vars from .env file into os.environ
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
@@ -24,9 +24,6 @@ def extract_context(data):
 
             for vuln in port.get("vulnerabilities", []):
                 output = vuln["output"]
-                severity = detect_severity(output)
-
-                colored_output = color_text(output, severity)
 
                 facts.append(
                     f"""Host: {ip} ({hostnames})
