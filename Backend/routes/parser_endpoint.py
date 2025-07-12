@@ -18,11 +18,7 @@ def analyze_nmap():
 
     try:
         parsed = parse_nmap_xml(temp_path)
-<<<<<<< HEAD
-        analysis = analyze(parsed)
-=======
         analysis = llm_response(parsed)
->>>>>>> RyanRoy37-main
         return jsonify({"parsed_data": parsed, "analysis": analysis})
 
     finally:
