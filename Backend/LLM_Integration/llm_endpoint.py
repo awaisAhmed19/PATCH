@@ -1,14 +1,20 @@
+# Built-ins
+import os
+import re
+import csv
+import json
+from datetime import datetime
+
+# Third-party
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
-import json
 import google.generativeai as genai
-import csv
-from datetime import datetime
 from dotenv import load_dotenv
-from Backend.parser.nmap_parser import parse_nmap_xml
-import re
 
+# Local
+from Backend.parser.nmap_parser import parse_nmap_xml
+
+load_dotenv()  # loads env vars from .env file into os.environ
 app = Flask(__name__)
 CORS(app)
 
@@ -171,15 +177,10 @@ DEFAULT_QUESTION = (
 )
 
 
-# POST endpoint
-
-
-# POST endpoint
 @app.route("/llm-response", methods=["POST"])
 def llm_response():
-
     try:
-        scan_data = request.getjson()
+        scan_data = request.get_json()
         if not scan_data:
             return jsonify({"error": "No JSON payload received"}), 400
     except Exception as e:
@@ -199,9 +200,34 @@ Answer based on the above data.
 """
 
     response = get_gemini_response(prompt)
+
+    # Save the result
+    append_vulnerabilities_to_csv(scan_data, response)
+    save_response_to_file(response)
+
     return jsonify({"response": response})
 
 
 # test
 # with open("scan_file_path", "r") as scan:
 #   print(llm_response(scan))
+##if __name__ == "__main__":
+##  with open("test.json", "r") as f:
+#   scan_data = json.load(f)  # ✅ This is now a dict
+
+# context = extract_context(scan_data)  # ✅ This works now
+# print("📄 Extracted Context:\n")
+# print(context)
+
+# prompt = f"""Here are the scan results from an Nmap scan:
+
+# {context}
+
+# Question: {DEFAULT_QUESTION}
+# Answer based on the above data.
+# """
+# print("\n🤖 Gemini LLM Response:\n")
+
+# print("GEMINI_API_KEY:", os.environ.get("GEMINI_API_KEY"))
+# response = get_gemini_response(prompt)
+# print(response)
