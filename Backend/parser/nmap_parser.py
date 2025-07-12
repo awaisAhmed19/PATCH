@@ -3,7 +3,6 @@ from lxml import etree
 
 
 def parse_nmap_xml(file_path):
-    from lxml import etree
 
     with open(file_path, "rb") as file:
         xml_data = file.read()
@@ -56,13 +55,3 @@ def parse_nmap_xml(file_path):
             results["scan_summary"]["host_count"] += 1
 
     return results
-
-
-# Test it with a file
-if __name__ == "__main__":
-    parsed = parse_nmap_xml("scanme.xml")
-    print(json.dumps(parsed, indent=2))
-
-    # Save to file
-    with open("parsed_output.json", "w") as f:
-        json.dump(parsed, f, indent=2)
