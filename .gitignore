@@ -1,0 +1,85 @@
+# Ignore Python virtual environments
+socgen_env/
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cython build
+*.c
+*.cpp
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+socgen_env_env/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Django/Migrations
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.mo
+*.db
+*/migrations/
+
+# Unit test / Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# --------------------
+# OS Files
+# --------------------
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --------------------
+# Editors / IDEs
+# --------------------
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# --------------------
+# Environment / Secrets
+# --------------------
+.env
+.env.*
+
+# --------------------
+# Other
+# --------------------
+*.bak
+*.swp
+*.tmp
+*.log
