@@ -230,4 +230,3 @@ Answer based on the above data.
 
 # print("GEMINI_API_KEY:", os.environ.get("GEMINI_API_KEY"))
 # response = get_gemini_response(prompt)
-# print(response)
