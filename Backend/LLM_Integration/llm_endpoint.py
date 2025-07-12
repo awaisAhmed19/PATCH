@@ -3,14 +3,16 @@ from flask_cors import CORS
 import os
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()  # loads env vars from .env file into os.environ
 app = Flask(__name__)
 CORS(app)
 
 
-# Extract facts from Nmap JSON
 def extract_context(data):
     facts = []
+
     for host in data.get("hosts", []):
         ip = host.get("address", "Unknown IP")
         hostnames = ", ".join(host.get("hostnames", [])) or "No hostname"
@@ -21,12 +23,18 @@ def extract_context(data):
             service_name = port.get("service", {}).get("name", "unknown service")
 
             for vuln in port.get("vulnerabilities", []):
+                output = vuln["output"]
+                severity = detect_severity(output)
+
+                colored_output = color_text(output, severity)
+
                 facts.append(
                     f"""Host: {ip} ({hostnames})
 OS: {os_info}
-Port {port_id} ({service_name}): {vuln['output']}"""
+Port {port_id} ({service_name}): {colored_output}"""
                 )
-    return "\n".join(facts)
+
+    return "\n\n".join(facts)
 
 
 # Gemini call
@@ -69,10 +77,32 @@ def llm_response():
 
     prompt = f"""Here are the scan results from an Nmap scan:
 
-{context}
+    {context}
 
-Question: {DEFAULT_QUESTION}
-Answer based on the above data.
-"""
+    Question: {DEFAULT_QUESTION}
+    Answer based on the above data.
+    """
     response = get_gemini_response(prompt)
     return jsonify({"response": response})
+
+
+##if __name__ == "__main__":
+##  with open("test.json", "r") as f:
+#   scan_data = json.load(f)  # ✅ This is now a dict
+
+# context = extract_context(scan_data)  # ✅ This works now
+# print("📄 Extracted Context:\n")
+# print(context)
+
+# prompt = f"""Here are the scan results from an Nmap scan:
+
+# {context}
+
+# Question: {DEFAULT_QUESTION}
+# Answer based on the above data.
+# """
+# print("\n🤖 Gemini LLM Response:\n")
+
+# print("GEMINI_API_KEY:", os.environ.get("GEMINI_API_KEY"))
+# response = get_gemini_response(prompt)
+# print(response)

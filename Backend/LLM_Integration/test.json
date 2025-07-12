@@ -1,0 +1,29 @@
+{
+  "hosts": [
+    {
+      "address": "192.168.0.10",
+      "hostnames": ["webserver.local"],
+      "os": { "name": "Ubuntu 20.04" },
+      "ports": [
+        {
+          "portid": "443",
+          "service": { "name": "https" },
+          "vulnerabilities": [
+            {
+              "output": "OpenSSL 1.1.1 is outdated and affected by CVE-2022-0778. Recommended to upgrade to 3.0.0+."
+            }
+          ]
+        },
+        {
+          "portid": "22",
+          "service": { "name": "ssh" },
+          "vulnerabilities": [
+            {
+              "output": "Weak SSH configuration detected (CVE-2020-14145). Disable outdated ciphers."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
