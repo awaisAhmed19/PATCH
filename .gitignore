@@ -70,6 +70,7 @@ Desktop.ini
 # PyCharm
 .idea/
 
+node_modules/
 # --------------------
 # Environment / Secrets
 # --------------------
