@@ -6,8 +6,7 @@ import google.generativeai as genai
 import csv
 from datetime import datetime
 from dotenv import load_dotenv
-
-
+from Backend.parser.nmap_parser import parse_nmap_xml
 import re
 
 app = Flask(__name__)
@@ -178,8 +177,9 @@ DEFAULT_QUESTION = (
 # POST endpoint
 @app.route("/llm-response", methods=["POST"])
 def llm_response():
+
     try:
-        scan_data = request.get_json()
+        scan_data = request.getjson()
         if not scan_data:
             return jsonify({"error": "No JSON payload received"}), 400
     except Exception as e:
@@ -200,3 +200,8 @@ Answer based on the above data.
 
     response = get_gemini_response(prompt)
     return jsonify({"response": response})
+
+
+# test
+# with open("scan_file_path", "r") as scan:
+#   print(llm_response(scan))
