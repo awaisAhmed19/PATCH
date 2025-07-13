@@ -45,7 +45,7 @@
               }
             },
             {
-              "id": "vulners",
+              "id": "vulners_2",
               "output": "Apache httpd 2.4.29 vulnerabilities",
               "elements": {}
             }
