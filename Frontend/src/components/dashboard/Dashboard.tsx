@@ -18,25 +18,43 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
   const [scanComplete, setScanComplete] = useState(false);
   const { toast } = useToast();
 
-  const handleScanStart = async (file: File) => {
+  const handleScanStart = async (file: File, question: string) => {
     setSelectedFile(file);
     setIsScanning(true);
     setScanComplete(false);
-    
+
     toast({
       title: "Scan Started",
       description: `Analyzing ${file.name} for vulnerabilities...`,
     });
 
-    // Simulate scan duration
-    setTimeout(() => {
-      setIsScanning(false);
-      setScanComplete(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("question", question);
+
+    try {
+      const res = await fetch("http://65.2.146.162:8000/llm-response", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Scan failed");
+
       toast({
         title: "Scan Complete",
-        description: "Vulnerability analysis finished successfully",
+        description: "Vulnerabilities detected and analyzed.",
       });
-    }, 5000);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Scan Failed",
+        description: "Could not process file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsScanning(false);
+      setScanComplete(true);
+    }
   };
 
   const handleLogout = () => {
@@ -70,7 +88,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <User className="h-4 w-4" />
@@ -116,9 +134,12 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <FileUpload onScanStart={handleScanStart} isScanning={isScanning} />
+              <FileUpload
+                isScanning={isScanning}
+                onScanStart={handleScanStart}
+              />
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -126,8 +147,9 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
             >
               <ScanOutput
                 isScanning={isScanning}
-                fileName={selectedFile?.name || null}
                 scanComplete={scanComplete}
+                fileName={selectedFile?.name || null}
+                scanResultEndpoint={`http://65.2.146.162:8008/download-log?date=${new Date().toISOString().slice(0, 10)}`}
               />
             </motion.div>
           </TabsContent>
@@ -144,7 +166,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                   Comprehensive vulnerability analytics and reporting
                 </p>
               </div>
-              
+
               <VulnerabilityCharts scanComplete={scanComplete} />
             </motion.div>
           </TabsContent>

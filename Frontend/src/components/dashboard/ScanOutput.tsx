@@ -3,76 +3,48 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Terminal, AlertTriangle, Shield, Info } from "lucide-react";
+import { Terminal, Shield, Info } from "lucide-react";
 
 interface ScanOutputProps {
   isScanning: boolean;
   fileName: string | null;
   scanComplete: boolean;
+  scanResultEndpoint: string;
 }
 
-export const ScanOutput = ({ isScanning, fileName, scanComplete }: ScanOutputProps) => {
+export const ScanOutput = ({ isScanning, fileName, scanComplete, scanResultEndpoint }: ScanOutputProps) => {
   const [output, setOutput] = useState<string[]>([]);
   const [currentLine, setCurrentLine] = useState(0);
 
-  const mockScanOutput = [
-    "PATCH Vulnerability Scanner v2.1.0",
-    "=" .repeat(50),
-    `Analyzing file: ${fileName || "unknown"}`,
-    "Initializing vulnerability database...",
-    "Loading security patterns...",
-    "Starting deep scan analysis...",
-    "",
-    "🔍 SCANNING PROGRESS:",
-    "▓▓▓▓▓▓▓▓▓▓ 100% Complete",
-    "",
-    "⚠️  VULNERABILITIES DETECTED:",
-    "",
-    "🔴 CRITICAL: SQL Injection vulnerability found",
-    "   Location: Line 247, user input validation",
-    "   Risk Score: 9.8/10",
-    "",
-    "🟠 HIGH: Cross-Site Scripting (XSS) detected",
-    "   Location: Line 156, output sanitization missing",
-    "   Risk Score: 8.2/10",
-    "",
-    "🟡 MEDIUM: Insecure HTTP headers",
-    "   Location: Configuration files",
-    "   Risk Score: 6.5/10",
-    "",
-    "🔵 LOW: Outdated dependency versions",
-    "   Location: Package manifest",
-    "   Risk Score: 3.2/10",
-    "",
-    "📊 SCAN SUMMARY:",
-    "   Total vulnerabilities: 12",
-    "   Critical: 2, High: 3, Medium: 4, Low: 3",
-    "   Scan duration: 2.3 seconds",
-    "",
-    "✅ Scan completed successfully",
-    "💾 Report generated and ready for export"
-  ];
-
   useEffect(() => {
-    if (isScanning) {
+    if (isScanning && scanResultEndpoint) {
       setOutput([]);
       setCurrentLine(0);
-      
-      const interval = setInterval(() => {
-        setCurrentLine((prev) => {
-          if (prev < mockScanOutput.length) {
-            setOutput((current) => [...current, mockScanOutput[prev]]);
-            return prev + 1;
-          } else {
-            clearInterval(interval);
-            return prev;
-          }
-        });
-      }, 150);
 
-      return () => clearInterval(interval);
+      fetch(scanResultEndpoint)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch scan result");
+          return res.text();
+        })
+        .then((data) => {
+          const lines = data.split('\n');
+          const interval = setInterval(() => {
+            setCurrentLine((prev) => {
+              if (prev < lines.length) {
+                setOutput((current) => [...current, lines[prev]]);
+                return prev + 1;
+              } else {
+                clearInterval(interval);
+                return prev;
+              }
+            });
+          }, 150);
+        })
+        .catch((err) => {
+          setOutput(["❌ Error fetching scan results: " + err.message]);
+        });
     }
-  }, [isScanning]);
+  }, [isScanning, scanResultEndpoint]);
 
   const getSeverityBadge = (line: string) => {
     if (line.includes("CRITICAL")) {
@@ -105,6 +77,7 @@ export const ScanOutput = ({ isScanning, fileName, scanComplete }: ScanOutputPro
           )}
         </CardTitle>
       </CardHeader>
+
       <CardContent>
         <ScrollArea className="h-96 w-full rounded-md border bg-background/30 p-4">
           <div className="font-mono text-sm space-y-1">
@@ -152,7 +125,7 @@ export const ScanOutput = ({ isScanning, fileName, scanComplete }: ScanOutputPro
                 ))
               )}
             </AnimatePresence>
-            
+
             {isScanning && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -165,7 +138,7 @@ export const ScanOutput = ({ isScanning, fileName, scanComplete }: ScanOutputPro
             )}
           </div>
         </ScrollArea>
-        
+
         {scanComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
